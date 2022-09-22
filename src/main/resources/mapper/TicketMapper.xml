@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neutrino.mapper.TicketMapper">
+    <resultMap type="com.neutrino.entity.Ticket" id="TicketMap">
+        <id property="id" column="id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
+        <result property="explain" column="explain" javaType="String" jdbcType="VARCHAR"/>
+        <result property="mprice" column="mprice" javaType="Double" jdbcType="DOUBLE"/>
+        <result property="dprice" column="dprice" javaType="Double" jdbcType="DOUBLE"/>
+        <association property="scenic" javaType="com.neutrino.entity.Scenic">
+            <id property="id" column="fid"/>
+            <result property="name" column="sname" javaType="String" jdbcType="VARCHAR"/>
+            <result property="theme" column="theme" javaType="String" jdbcType="VARCHAR"/>
+            <result property="feature" column="feature" javaType="String" jdbcType="VARCHAR"/>
+            <result property="addr" column="addr" javaType="String" jdbcType="VARCHAR"/>
+            <result property="pic" column="pic" javaType="String" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+
+    <select id="selectTicketList" parameterType="integer" resultType="com.neutrino.entity.Ticket">
+        select * from ticket
+        where fid = #{id}
+    </select>
+
+    <select id="postCountByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="int">
+        select count(1) from ticket
+    </select>
+
+    <select id="selectPostListByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultMap="TicketMap">
+        select
+        t.id,t.name,t.explain,t.dprice,t.mprice,s.name as sname
+        from ticket t
+        left join scenic s on s.id=t.fid
+        <where>
+            <if test="name != null and name != ''">
+                t.name like "%"#{name}"%"
+            </if>
+        </where>
+        order by id
+        limit #{startRow},#{size}
+    </select>
+
+    <!-- 通过ID删除 -->
+    <delete id="deleteById" parameterType="int">
+        delete from ticket where id = #{id}
+    </delete>
+
+    <insert id="addTicket" parameterType="com.neutrino.entity.Ticket">
+        insert into `ticket`
+        (
+        fid,
+        name,
+        `explain`,
+        dprice,
+        mprice
+        )
+        values(
+        #{fid,jdbcType=INTEGER},
+        #{name,jdbcType=VARCHAR},
+        #{explain,jdbcType=VARCHAR},
+        #{dprice,jdbcType=DOUBLE},
+        #{mprice,jdbcType=DOUBLE}
+        )
+    </insert>
+
+    <update id="updateTicket" parameterType="Ticket">
+        update `ticket`
+        <set>
+            <if test="name != null">name=#{name,jdbcType=VARCHAR},</if>
+            <if test="explain != null">`explain`=#{explain,jdbcType=VARCHAR},</if>
+            <if test="dprice != null">dprice=#{dprice,jdbcType=DOUBLE},</if>
+            <if test="mprice != null">mprice=#{mprice,jdbcType=DOUBLE},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getTicketById" parameterType="integer" resultMap="TicketMap">
+        select
+        t.id,t.name,t.explain,t.dprice,t.mprice,s.name as sname,s.feature,s.theme,s.addr,s.pic
+        from ticket t
+        left join scenic s on s.id=t.fid
+        where t.id = #{id}
+    </select>
+
+    <select id="selectPriceByFid" parameterType="integer" resultType="double">
+        select min(mprice) from ticket
+        where fid = #{id}
+    </select>
+</mapper>

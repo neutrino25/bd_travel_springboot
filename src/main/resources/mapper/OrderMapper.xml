@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neutrino.mapper.OrderMapper">
+    <resultMap type="com.neutrino.entity.Order" id="OrderMap">
+        <id property="id" column="id" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="no" column="no" javaType="String" jdbcType="VARCHAR"/>
+        <result property="code" column="code" javaType="String" jdbcType="VARCHAR"/>
+        <result property="paid" column="paid" javaType="Double" jdbcType="DOUBLE"/>
+        <result property="num" column="num" javaType="Integer" jdbcType="INTEGER"/>
+        <result property="state" column="state" javaType="Integer" jdbcType="INTEGER"/>
+        <association property="user" javaType="com.neutrino.entity.User">
+            <id property="userid" column="uid"/>
+            <result property="username" column="username" javaType="String" jdbcType="VARCHAR"/>
+        </association>
+        <association property="ticket" javaType="com.neutrino.entity.Ticket">
+            <id property="id" column="tid"/>
+            <result property="name" column="name" javaType="String" jdbcType="VARCHAR"/>
+            <result property="fid" column="fid"/>
+            <association property="scenic" javaType="com.neutrino.entity.Scenic">
+                <id property="id" column="fid"/>
+                <result property="name" column="sname" javaType="String" jdbcType="VARCHAR"/>
+            </association>
+        </association>
+    </resultMap>
+
+    <select id="selectOrderList" parameterType="String" resultMap="OrderMap">
+        select
+        o.id,o.no,o.code,o.num,o.paid,o.state,t.name,s.name as sname,u.username
+        from `order` o
+        left join ticket t on t.id=o.tid
+        left join scenic s on t.fid=s.id
+        left join  user u on u.userid=o.uid
+        where o.uid = #{id}
+    </select>
+
+    <select id="postCountByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="int">
+        select count(id) from `order`
+    </select>
+
+    <select id="selectPostListByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultMap="OrderMap">
+        select
+        o.id,o.no,o.code,o.num,o.paid,o.state,t.name,s.name as sname,u.username
+        from `order` o
+        left join ticket t on t.id=o.tid
+        left join scenic s on t.fid=s.id
+        left join  user u on u.userid=o.uid
+        <where>
+            <if test="name != null and name != ''">
+                u.username like "%"#{name}"%"
+            </if>
+            <if test="userid != null and userid != ''">
+                o.uid = #{userid}
+            </if>
+        </where>
+        order by o.id
+        limit #{startRow},#{size}
+    </select>
+
+    <update id="updateStateById" parameterType="Integer">
+        update `order`
+        set state = 2
+        where id = #{id}
+    </update>
+
+    <update id="updateStateToPayById" parameterType="Integer">
+        update `order`
+        set state = 1
+        where id = #{id}
+    </update>
+
+    <insert id="insertOrder" parameterType="com.neutrino.entity.Order">
+        insert into `order`
+        (
+        tid,
+        uid,
+        paid,
+        num,
+        no,
+        code
+        )
+        values(
+        #{tid,jdbcType=INTEGER},
+        #{uid,jdbcType=VARCHAR},
+        #{paid,jdbcType=DOUBLE},
+        #{num,jdbcType=INTEGER},
+        #{no,jdbcType=VARCHAR},
+        #{code,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <select id="getOrderByNo" parameterType="String" resultMap="OrderMap">
+        select
+        o.id,o.no,o.code,o.num,o.paid,o.state,t.name,t.fid,s.name as sname,u.username,s.id
+        from `order` o
+        left join ticket t on t.id=o.tid
+        left join scenic s on t.fid=s.id
+        left join  user u on u.userid=o.uid
+        where o.no = #{no}
+    </select>
+</mapper>

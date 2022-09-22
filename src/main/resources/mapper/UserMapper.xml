@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neutrino.mapper.UserMapper" >
+    <sql id="sql_where_Clause">
+        <where>
+            <if test="username != null">and username=#{username}</if>
+            <if test="password != null">and password=#{password}</if>
+            <if test="userid != null">and userid=#{userid}</if>
+            and state = 1
+        </where>
+    </sql>
+
+    <select id="getUser" parameterType="com.neutrino.entity.User" resultType="com.neutrino.entity.User">
+        select *
+        from USER
+        <include refid="sql_where_Clause"/>
+    </select>
+
+    <insert id="userRegister" parameterType="com.neutrino.entity.User">
+        insert into USER(
+        userid,
+        username,
+        password,
+        name,
+        email,
+        telephone,
+        birthday,
+        sex,
+        state,
+        code
+        )
+        <trim prefix=" values(" suffix=")" suffixOverrides=",">
+            #{userid,jdbcType=VARCHAR},
+            #{username,jdbcType=VARCHAR},
+            #{password,jdbcType=VARCHAR},
+            #{name,jdbcType=VARCHAR},
+            #{email,jdbcType=VARCHAR},
+            #{telephone,jdbcType=VARCHAR},
+            #{birthday,jdbcType=TIMESTAMP},
+            #{sex,jdbcType=VARCHAR},
+            #{state,jdbcType=NUMERIC},
+            #{code,jdbcType=VARCHAR}
+        </trim>
+    </insert>
+
+    <update id="updateUserInfo" parameterType="com.neutrino.entity.User">
+        update user
+        <set>
+            <if test="username != null">username=#{username,jdbcType=VARCHAR},</if>
+            <if test="password != null">password=#{password,jdbcType=VARCHAR},</if>
+            <if test="name != null">name=#{name,jdbcType=VARCHAR},</if>
+            <if test="telephone != null">telephone=#{telephone,jdbcType=VARCHAR},</if>
+            <if test="birthday != null">birthday=#{birthday,jdbcType=TIMESTAMP},</if>
+            <if test="sex != null">sex=#{sex,jdbcType=VARCHAR},</if>
+        </set>
+        where userid = #{userid}
+    </update>
+
+    <update id="active" parameterType="String">
+        UPDATE USER
+        set state = 1
+        where code = #{activeCode}
+    </update>
+
+    <select id="checkUsername" parameterType="String" resultType="int">
+      SELECT COUNT(*)
+      FROM USER
+      WHERE username = #{username}
+    </select>
+
+    <select id="customerCountByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="int">
+        select count(1) from user
+    </select>
+
+    <select id="selectCustomerListByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="com.neutrino.entity.User">
+        select * from USER
+        <where>
+            <if test="name != null and name != ''">
+                username like "%"#{name}"%"
+            </if>
+        </where>
+        limit #{startRow},#{size}
+    </select>
+
+    <update id="updateStateById" parameterType="String">
+        update user
+        set state = 2
+        where userid = #{id}
+    </update>
+</mapper>

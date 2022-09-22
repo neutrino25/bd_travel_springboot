@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neutrino.mapper.FoodMapper">
+
+    <select id="selectFoodList" resultType="com.neutrino.entity.TastyFood">
+        select * from tastyfood
+    </select>
+
+    <select id="postCountByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="int">
+        select count(1) from tastyfood
+    </select>
+
+    <select id="selectPostListByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="com.neutrino.entity.TastyFood">
+        select * from tastyfood
+        <where>
+            <if test="name != null and name != ''">
+                name like "%"#{name}"%"
+            </if>
+        </where>
+        order by id
+        limit #{startRow},#{size}
+    </select>
+
+    <insert id="addFood" parameterType="com.neutrino.entity.TastyFood">
+        insert into `tastyfood`
+        (
+        name,
+        `describe`,
+        commend,
+        pic
+        )
+        values(
+        #{name,jdbcType=VARCHAR},
+        #{describe,jdbcType=VARCHAR},
+        #{commend,jdbcType=VARCHAR},
+        #{pic,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!-- 通过ID删除 -->
+    <delete id="deleteById" parameterType="int">
+        delete from tastyfood where id = #{id}
+    </delete>
+
+    <update id="updateFood" parameterType="TastyFood">
+        update tastyfood
+        <set>
+            <if test="name != null">name=#{name,jdbcType=VARCHAR},</if>
+            <if test="describe != null">`describe`=#{describe,jdbcType=VARCHAR},</if>
+            <if test="commend != null">commend=#{commend,jdbcType=VARCHAR},</if>
+            <if test="pic != null">pic=#{pic,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getFoodById" parameterType="integer" resultType="com.neutrino.entity.TastyFood">
+        select * from tastyfood
+        where id = #{id}
+    </select>
+</mapper>

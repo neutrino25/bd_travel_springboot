@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neutrino.mapper.ManagerMapper">
+    <sql id="sql_where_Clause">
+        <where>
+            <if test="name != null">and name=#{name}</if>
+            <if test="password != null">and password=#{password}</if>
+        </where>
+    </sql>
+
+    <insert id="insertManager" parameterType="com.neutrino.entity.Manager">
+        insert into manager(managerid,name,password,flag)
+        VALUES (
+            #{managerid,jdbcType=VARCHAR},
+            #{name,jdbcType=VARCHAR},
+            #{password,jdbcType=VARCHAR},
+            #{flag,jdbcType=NUMERIC}
+        )
+    </insert>
+
+    <select id="confirmManager" parameterType="com.neutrino.entity.Manager" resultType="com.neutrino.entity.Manager">
+          select *
+          from manager
+          <include refid="sql_where_Clause"/>
+    </select>
+
+    <select id="getAllManager" parameterType="String" resultType="com.neutrino.entity.Manager">
+        select *
+        from manager
+        <where>
+            <if test="_parameter != null">and name=#{_parameter}</if>
+        </where>
+    </select>
+
+    <delete id="deleteManager" parameterType="String">
+        delete from manager
+        where managerid = #{id}
+    </delete>
+</mapper>

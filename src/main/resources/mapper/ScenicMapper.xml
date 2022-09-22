@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.neutrino.mapper.ScenicMapper">
+    <select id="selectScenicList" resultType="com.neutrino.entity.Scenic">
+        select * from scenic
+        order by sales desc
+    </select>
+
+    <select id="postCountByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="int">
+        select count(1) from scenic
+    </select>
+
+    <select id="selectPostListByQueryVo" parameterType="com.neutrino.entity.QueryVo" resultType="com.neutrino.entity.Scenic">
+        select * from scenic
+        <where>
+            <if test="name != null and name != ''">
+                name like "%"#{name}"%"
+            </if>
+            <if test="addr != null and addr != ''">
+                and addr like "%"#{addr}"%"
+            </if>
+            <if test="theme != null and theme != ''">
+                and theme = #{theme}
+            </if>
+        </where>
+        order by id
+        limit #{startRow},#{size}
+    </select>
+
+    <insert id="addScenic" parameterType="com.neutrino.entity.Scenic">
+        insert into scenic
+        (
+        name,
+        theme,
+        addr,
+        feature,
+        pic
+        )
+        values(
+        #{name,jdbcType=VARCHAR},
+        #{theme,jdbcType=VARCHAR},
+        #{addr,jdbcType=VARCHAR},
+        #{feature,jdbcType=VARCHAR},
+        #{pic,jdbcType=VARCHAR}
+        )
+    </insert>
+
+    <!-- 	//通过ID 删除 -->
+    <delete id="deleteById" parameterType="int">
+        delete from scenic where id = #{id}
+    </delete>
+
+    <update id="updateScenic" parameterType="Scenic">
+        update scenic
+        <set>
+            <if test="name != null">name=#{name,jdbcType=VARCHAR},</if>
+            <if test="theme != null">theme=#{theme,jdbcType=VARCHAR},</if>
+            <if test="addr != null">addr=#{addr,jdbcType=VARCHAR},</if>
+            <if test="feature != null">feature=#{feature,jdbcType=VARCHAR},</if>
+            <if test="pic != null">pic=#{pic,jdbcType=VARCHAR},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getScenicById" parameterType="integer" resultType="com.neutrino.entity.Scenic">
+        select * from scenic
+        where id = #{id}
+    </select>
+
+    <update id="updateScenicSales" parameterType="integer">
+        update scenic
+        <set>
+            sales = sales + 1
+        </set>
+        where id = #{id}
+    </update>
+</mapper>
