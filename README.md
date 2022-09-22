@@ -1,5 +1,5 @@
-###bd_travel_springboot
-2018年6月的毕业设计，将ssm技术切换为springboot，使用内置的tomcat即可运行项目。
+
+毕业设计项目，将ssm技术切换为springboot，使用内置的tomcat即可运行项目。
 
 管理系统
 - url: http://localhost:8080/managerLoginPage
